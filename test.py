@@ -1,7 +1,7 @@
 import os
 import argparse
 import numpy as np
-from scipy import misc
+import imageio
 import scipy.io as sio
 from warpgan import WarpGAN
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     network = WarpGAN()
     network.load_model(args.model_dir)
 
-    img = misc.imread(args.input, mode='RGB')
+    img = imageio.imread(args.input, pilmode='RGB')
 
     if not args.aligned:
         from align.detect_align import detect_align
@@ -37,12 +37,12 @@ if __name__ == '__main__':
 
     images = np.tile(img[None], [args.num_styles, 1, 1, 1])
     scales = args.scale * np.ones((args.num_styles))
-    styles = np.random.normal(0., 1., (args.num_styles, network.input_style.shape[1].value))
+    styles = np.random.normal(0., 1., (args.num_styles, network.input_style.shape[1]))
 
     output = network.generate_BA(images, scales, 16, styles=styles)
     output = 0.5*output + 0.5
 
     for i in range(args.num_styles):
-        misc.imsave(args.output + '_{}.jpg'.format(i), output[i])
+        imageio.imsave(args.output + '_{}.jpg'.format(i), output[i])
 
 

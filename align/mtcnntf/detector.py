@@ -4,10 +4,10 @@ from . import detect_face
 class Detector(object):
     def __init__(self):
         with tf.Graph().as_default():
-            gpu_options = tf.GPUOptions(allow_growth=True)
-            tf_config = tf.ConfigProto(gpu_options=gpu_options,
+            gpu_options = tf.compat.v1.GPUOptions(allow_growth=True)
+            tf_config = tf.compat.v1.ConfigProto(gpu_options=gpu_options,
                     allow_soft_placement=True, log_device_placement=False)
-            sess = tf.Session(config=tf_config)
+            sess = tf.compat.v1.Session(config=tf_config)
             with sess.as_default():
                 self.pnet, self.rnet, self.onet = detect_face.create_mtcnn(sess, None)
     

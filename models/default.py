@@ -42,7 +42,7 @@ def leaky_relu(x):
 def upscale2d(x, factor=2):
     assert isinstance(factor, int) and factor >= 1
     if factor == 1: return x
-    with tf.variable_scope('Upscale2D'):
+    with tf.compat.v1.variable_scope('Upscale2D'):
         s = x.shape
         x = tf.reshape(x, [-1, s[1], 1, s[2], 1, s[3]])
         x = tf.tile(x, [1, 1, factor, 1, factor, 1])
@@ -76,7 +76,7 @@ def discriminator(images, num_classes, bottleneck_size=512, keep_prob=1.0, phase
                         activation_fn=leaky_relu,
                         normalizer_fn=None,
                         normalizer_params=batch_norm_params):
-        with tf.variable_scope(scope, [images], reuse=reuse):
+        with tf.compat.v1.variable_scope(scope, [images], reuse=reuse):
             with slim.arg_scope([slim.batch_norm, slim.dropout],
                                 is_training=phase_train):
 
@@ -109,7 +109,7 @@ def discriminator(images, num_classes, bottleneck_size=512, keep_prob=1.0, phase
                 prelogits = slim.fully_connected(net, bottleneck_size, scope='Bottleneck',
                                         weights_initializer=slim.xavier_initializer(), 
                                         activation_fn=None, normalizer_fn=None)
-                prelogits = tf.nn.l2_normalize(prelogits, dim=1)
+                prelogits = tf.compat.v1.nn.l2_normalize(prelogits, dim=1)
                 print('latent shape:', [dim.value for dim in prelogits.shape])
 
                 logits = slim.fully_connected(prelogits, num_classes, scope='Logits',
@@ -119,9 +119,9 @@ def discriminator(images, num_classes, bottleneck_size=512, keep_prob=1.0, phase
 
 
 def encoder(images, style_size=8, keep_prob=1.0, phase_train=True, weight_decay=0.0, reuse=None, scope='Encoders'):
-    with tf.variable_scope(scope, reuse=reuse):
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
         with slim.arg_scope([slim.conv2d, slim.conv2d_transpose, slim.fully_connected],
-                        activation_fn=tf.nn.relu,
+                        activation_fn=tf.compat.v1.nn.relu,
                         # weights_initializer=tf.contrib.layers.xavier_initializer(),
                         weights_initializer=tf.contrib.layers.variance_scaling_initializer(),
                         weights_regularizer=slim.l2_regularizer(weight_decay)):
@@ -134,7 +134,7 @@ def encoder(images, style_size=8, keep_prob=1.0, phase_train=True, weight_decay=
                     k = 64
 
 
-                    with tf.variable_scope('StyleEncoder'):
+                    with tf.compat.v1.variable_scope('StyleEncoder'):
                         with slim.arg_scope([slim.conv2d, slim.conv2d_transpose, slim.fully_connected],
                             normalizer_fn=None, normalizer_params=None):
                             
@@ -163,7 +163,7 @@ def encoder(images, style_size=8, keep_prob=1.0, phase_train=True, weight_decay=
 
 
                     #  Transform textures
-                    with tf.variable_scope('ContentEncoder'):
+                    with tf.compat.v1.variable_scope('ContentEncoder'):
                         with slim.arg_scope([slim.conv2d, slim.conv2d_transpose, slim.fully_connected],
                                 normalizer_fn=instance_norm, normalizer_params=None):
                             print('-- ContentEncoder')
@@ -190,9 +190,9 @@ def encoder(images, style_size=8, keep_prob=1.0, phase_train=True, weight_decay=
 
 def decoder(encoded, scales, styles, texture_only=False, style_size=8, image_size=(112,112),
         keep_prob=1.0, phase_train=True, weight_decay=0.0, reuse=None, scope='Decoder'):
-    with tf.variable_scope(scope, reuse=reuse):
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
         with slim.arg_scope([slim.conv2d, slim.conv2d_transpose, slim.fully_connected],
-                        activation_fn=tf.nn.relu,
+                        activation_fn=tf.compat.v1.nn.relu,
                         # weights_initializer=tf.contrib.layers.xavier_initializer(),
                         weights_initializer=tf.contrib.layers.variance_scaling_initializer(),
                         weights_regularizer=slim.l2_regularizer(weight_decay)):
@@ -205,7 +205,7 @@ def decoder(encoded, scales, styles, texture_only=False, style_size=8, image_siz
                     h, w = tuple(image_size)
                     k = 64
     
-                    with tf.variable_scope('StyleController'):
+                    with tf.compat.v1.variable_scope('StyleController'):
 
                         if styles is None:
                             styles = tf.random_normal((batch_size, style_size))
@@ -228,7 +228,7 @@ def decoder(encoded, scales, styles, texture_only=False, style_size=8, image_siz
 
 
                     
-                    with tf.variable_scope('Decoder'):
+                    with tf.compat.v1.variable_scope('Decoder'):
                         print('-- Decoder')
                         net = encoded
 
@@ -253,13 +253,13 @@ def decoder(encoded, scales, styles, texture_only=False, style_size=8, image_siz
 
                         net = conv(net, 3, 7, pad=3, activation_fn=None, normalizer_fn=None, 
                                     weights_initializer=tf.constant_initializer(0.0), scope='conv_image')
-                        images_rendered = tf.nn.tanh(net, name='images_rendered')
+                        images_rendered = tf.compat.v1.nn.tanh(net, name='images_rendered')
                         print('images_rendered shape:', [dim.value for dim in images_rendered.shape])
 
                     if texture_only:
                         return images_rendered                        
 
-                    with tf.variable_scope('WarpController'):
+                    with tf.compat.v1.variable_scope('WarpController'):
 
                         print('-- WarpController')
 

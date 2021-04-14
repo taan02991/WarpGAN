@@ -35,10 +35,10 @@ import tensorflow as tf
 class WarpGAN:
     def __init__(self):
         self.graph = tf.Graph()
-        gpu_options = tf.GPUOptions(allow_growth=True)
-        tf_config = tf.ConfigProto(gpu_options=gpu_options,
+        gpu_options = tf.compat.v1.GPUOptions(allow_growth=True)
+        tf_config = tf.compat.v1.ConfigProto(gpu_options=gpu_options,
                 allow_soft_placement=True, log_device_placement=False)
-        self.sess = tf.Session(graph=self.graph, config=tf_config)
+        self.sess = tf.compat.v1.Session(graph=self.graph, config=tf_config)
             
     def initialize(self, config, num_classes=None):
         '''
@@ -210,13 +210,13 @@ class WarpGAN:
             labels_D_B = tf.ones(tf.shape(logits_B)[0:1], dtype=tf.int32)
             labels_D_BA = tf.ones(tf.shape(logits_BA)[0:1], dtype=tf.int32) * 2
             labels_G_BA = tf.zeros(tf.shape(logits_BA)[0:1], dtype=tf.int32)
-            loss_D_A = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_A = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_A, labels=labels_D_A))
-            loss_D_B = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_B = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_B, labels=labels_D_B))
-            loss_D_BA = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_BA = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_BA, labels=labels_D_BA))
-            loss_G = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_G = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_BA, labels=labels_G_BA))
             loss_D = loss_D_A + loss_D_B + loss_D_BA
 
@@ -224,16 +224,16 @@ class WarpGAN:
             
     def cls_adv_loss(self, logits_A, logits_B, logits_BA, labels_A, labels_B, labels_BA, num_classes):
         with tf.name_scope('ClsAdvLoss'):
-            loss_D_A = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_A = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_A, labels=labels_A))
-            loss_D_B = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_B = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_B, labels=labels_B+num_classes))
-            loss_D_BA = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_D_BA = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_BA, labels=labels_BA+2*num_classes))
 
             loss_D = loss_D_A + loss_D_B + loss_D_BA
 
-            loss_G_BA = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
+            loss_G_BA = tf.reduce_mean(tf.compat.v1.nn.sparse_softmax_cross_entropy_with_logits(\
                 logits=logits_BA, labels=labels_BA))
 
             loss_G = loss_G_BA
@@ -285,7 +285,7 @@ class WarpGAN:
             
             print('Metagraph file: %s' % meta_file)
             print('Checkpoint file: %s' % ckpt_file)
-            saver = tf.train.import_meta_graph(meta_file, clear_devices=True, import_scope=scope)
+            saver = tf.compat.v1.train.import_meta_graph(meta_file, clear_devices=True, import_scope=scope)
             saver.restore(self.sess, ckpt_file)
 
             # Setup the I/O Tensors
