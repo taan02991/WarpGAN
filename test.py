@@ -2,7 +2,6 @@ import os
 import argparse
 import numpy as np
 import imageio
-import scipy.io as sio
 from warpgan import WarpGAN
 
 # Parse aguements

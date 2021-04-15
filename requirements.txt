@@ -1,0 +1,8 @@
+# matplotlib==1.15
+# scipy==1.1.0
+tensorflow==2.4.1
+imageio==2.9.0
+opencv-python==4.5.1.48
+fastapi==0.63.0
+uvicorn==0.13.4
+python-multipart==0.0.5
