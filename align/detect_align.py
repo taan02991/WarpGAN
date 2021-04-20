@@ -58,7 +58,7 @@ def align(src_img, src_pts, ref_pts, image_size, scale=1.0, transpose_input=Fals
     s_new = np.concatenate([s.reshape([2,-1]), np.ones((1, s.shape[0]))])
     s_new = np.matmul(tfm, s_new)
     s_new = s_new.reshape([-1]) if transpose_input else s_new.T.reshape([-1]) 
-    tfm = tfm.reshape([-1])
+    # tfm = tfm.reshape([-1])
     return dst_img, s_new, tfm
 
 
@@ -87,5 +87,5 @@ def detect_align(image, image_size=(256,256), scale=0.7, transpose_input=False):
 
     img_new, new_pts, tfm = align(image, src_pts, ref_pts, image_size, scale, transpose_input)
 
-    return img_new
+    return img_new, tfm
     

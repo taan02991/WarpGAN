@@ -3,22 +3,22 @@ import cv2
 from warpgan import WarpGAN
 import imageio
 from align.detect_align import detect_align
-
+from matplotlib import pyplot as plt
 
 
 def transform_face(img):
-    output = face_to_cartoon(img)
+    face, alpha_mask = face_to_cartoon(img)
     
-    # Prepare inputs
-    x, y = 330, 70
-    img_overlay_rgba = resize(output[: ,: ,:], 135)
-
-    # Perform blending
-    alpha_mask = img_overlay_rgba[:, :, 2]
-    alpha_mask = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(alpha_mask.shape[0],alpha_mask.shape[1]))
     img_result = img[:, :, :3].copy() / 255
-    img_overlay = img_overlay_rgba[:, :, :3]
-    overlay_image_alpha(img_result, img_overlay, x, y, alpha_mask)
+
+    overlay_image_alpha(img_result, face, 0, 0, alpha_mask)
+
+    # fig, axs = plt.subplots(2, 2)
+    # axs[0,0].imshow(img)
+    # axs[0,1].imshow(alpha_mask)
+    # axs[1,0].imshow(face)
+    # axs[1,1].imshow(img_result)
+    # plt.show()
 
     return img_result.astype(np.float32)
 
@@ -32,8 +32,12 @@ def face_to_cartoon(img):
     network = WarpGAN()
     network.load_model(model_dir)
 
+    original_shape = (img.shape[1], img.shape[0])  
+
     if not aligned:
-        img = detect_align(img)
+        img, tfm = detect_align(img)
+
+    img2 = cv2.warpAffine(img, tfm, original_shape, flags=cv2.WARP_INVERSE_MAP)
 
     img = (img - 127.5) / 128.0
 
@@ -44,7 +48,14 @@ def face_to_cartoon(img):
     output = network.generate_BA(images, scales, 16, styles=styles)
     output = 0.5*output + 0.5
 
-    return output[0]
+    mask_size = (int(output[0].shape[0]), int(output[0].shape[1]))
+    alpha_mask = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, mask_size)
+    alpha_mask = cv2.blur(alpha_mask.astype(np.float64),(25,25), borderType=cv2.BORDER_CONSTANT)
+
+    face = cv2.warpAffine(output[0], tfm, original_shape, flags=cv2.WARP_INVERSE_MAP)
+    alpha_mask = cv2.warpAffine(alpha_mask, tfm, original_shape, flags=cv2.WARP_INVERSE_MAP)
+
+    return face, alpha_mask
 
 
 
