@@ -1,9 +1,9 @@
 import numpy as np
 import cv2
-from warpgan import WarpGAN
 import imageio
 from align.detect_align import detect_align
 from matplotlib import pyplot as plt
+from app import network
 
 
 def transform_face(img):
@@ -24,13 +24,9 @@ def transform_face(img):
 
 
 def face_to_cartoon(img):
-    model_dir = "./pretrained/warpgan_pretrained"
     num_styles = 1
     scale = 1.0
     aligned=False
-
-    network = WarpGAN()
-    network.load_model(model_dir)
 
     original_shape = (img.shape[1], img.shape[0])  
 

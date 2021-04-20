@@ -34,7 +34,7 @@ import argparse
 import random
 import cv2
 
-from align.mtcnntf.detector import Detector
+from align.mtcnntf import detector
 from align.matlab_cp2tform import get_similarity_transform_for_cv2
 
 
@@ -63,8 +63,6 @@ def align(src_img, src_pts, ref_pts, image_size, scale=1.0, transpose_input=Fals
 
 
 def detect_align(image, image_size=(256,256), scale=0.7, transpose_input=False):
-
-    detector = Detector()
     
     bboxes, landmarks = detector.detect(image)
     if len(bboxes) == 0 : return None
