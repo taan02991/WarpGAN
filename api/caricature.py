@@ -18,7 +18,7 @@ async def upload_file(file: UploadFile = File(...)):
     img_result = cv2.cvtColor(img_result, cv2.COLOR_BGR2RGB)
     _, im_png = cv2.imencode(".png", img_result * 255)
     base64_img = base64.b64encode(im_png)
-    return {"data": base64_img}
+    return base64_img
 
 
 @router.get("/test")
